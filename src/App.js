@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [ingredients, setIngredients] = useState('');
+    const [recipes, setRecipes] = useState([]);
+
+    const searchRecipes = async () => {
+        try {
+            const response = await axios.get(`/search/${ingredients}`);
+            setRecipes(response.data);
+        } catch (error) {
+            console.error("Error fetching recipes", error);
+        }
+    };
+
+    return (
+        <div>
+            <h1>RecipePlanner</h1>
+            <input
+                type="text"
+                placeholder="Enter ingredients"
+                value={ingredients}
+                onChange={(e) => setIngredients(e.target.value)}
+            />
+            <button onClick={searchRecipes}>Search Recipes</button>
+
+            <div>
+                {recipes.length > 0 && recipes.map((recipe) => (
+                    <div key={recipe.id}>
+                        <h3>{recipe.title}</h3>
+                        <img src={recipe.image} alt={recipe.title} />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }
 
 export default App;
