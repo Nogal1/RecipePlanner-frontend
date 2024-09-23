@@ -7,6 +7,7 @@ import RecipeSearch from './components/Recipes/RecipeSearch';
 import SavedRecipes from './components/Recipes/SavedRecipes';
 import RecipeDetails from './components/Recipes/RecipeDetails';
 import Profile from './components/Auth/Profile';
+import MealPlanner from './components/Meals/MealPlanner';
 import "./App.css";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
               <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
               <Routes>
                   <Route path="/" element={<RecipeSearch />} />
+                  <Route path="/meal-planner" element={<MealPlanner />} />
                   <Route path="/search" element={<RecipeSearch />} />
                   <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />  {/* Pass setIsAuthenticated */}
                   <Route path="/register" element={<Register />} />

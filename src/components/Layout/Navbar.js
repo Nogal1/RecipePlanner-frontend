@@ -28,6 +28,7 @@ function Navbar({ isAuthenticated, setIsAuthenticated }) {
                 ) : (
                     <>
                         <li><Link to="/saved-recipes">My Recipes</Link></li>
+                        <li><Link to="/meal-planner">Meal Planner</Link></li>
                         <li><Link to="/profile">Profile</Link></li>
                         <li><button onClick={handleLogout}>Logout</button></li>
                     </>
