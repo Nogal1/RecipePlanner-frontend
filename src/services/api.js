@@ -23,11 +23,23 @@ export const searchRecipes = async (ingredients) => {
     return response.data;
 };
 
-// Fetch saved recipes (JWT required)
-export const fetchSavedRecipes = async () => {
-    const token = localStorage.getItem('token');
-    const response = await api.get('/my-recipes', {
-        headers: { 'x-auth-token': token },
+// Save Recipe
+export const saveRecipe = async (recipeData) => {
+    const token = localStorage.getItem('token');  // Get JWT token from localStorage
+    const response = await api.post('/recipes/save-recipe', recipeData, {
+        headers: { 'x-auth-token': token }  // Attach JWT token in the headers
     });
     return response.data;
 };
+
+
+// Fetch Saved Recipes
+export const fetchSavedRecipes = async () => {
+    const token = localStorage.getItem('token');  // Get JWT token from localStorage
+    const response = await api.get('/recipes/my-recipes', {
+        headers: { 'x-auth-token': token }  // Attach JWT token in the headers
+    });
+    return response.data;
+};
+
+

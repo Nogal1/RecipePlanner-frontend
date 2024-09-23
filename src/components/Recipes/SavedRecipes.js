@@ -28,10 +28,11 @@ function SavedRecipes() {
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <div>
+                {recipes.length === 0 && !loading && <p>No saved recipes yet.</p>}  {/* Show message if no recipes */}
                 {recipes.map((recipe, index) => (
                     <div key={index}>
                         <h3>{recipe.title}</h3>
-                        <img src={recipe.image} alt={recipe.title} />
+                        <img src={recipe.image_url} alt={recipe.title} />
                     </div>
                 ))}
             </div>
