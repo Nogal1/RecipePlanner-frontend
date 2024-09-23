@@ -6,6 +6,7 @@ import Register from './components/Auth/Register';
 import RecipeSearch from './components/Recipes/RecipeSearch';
 import SavedRecipes from './components/Recipes/SavedRecipes';
 import RecipeDetails from './components/Recipes/RecipeDetails';
+import Profile from './components/Auth/Profile';
 import "./App.css";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                   <Route path="/register" element={<Register />} />
                   <Route path="/saved-recipes" element={<SavedRecipes />} />
                   <Route path="/recipe/:id" element={<RecipeDetails />} />
+                  <Route path="/profile" element={<Profile />} />
               </Routes>
           </div>
       </Router>

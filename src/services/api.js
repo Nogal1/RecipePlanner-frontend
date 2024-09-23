@@ -48,4 +48,14 @@ export const fetchRecipeDetails = async (id) => {
     return response.data;
 };
 
+// Update User Profile
+export const updateUserProfile = async ({ email, password, newPassword }) => {
+    const token = localStorage.getItem('token');  // Get JWT token from localStorage
+    const response = await axios.post('/auth/profile', { email, password, newPassword }, {
+        headers: { 'x-auth-token': token }
+    });
+    return response.data;
+};
+
+
 
