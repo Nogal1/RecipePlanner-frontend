@@ -7,14 +7,14 @@ const api = axios.create({
 
 // Register user
 export const registerUser = async (email, username, password) => {
-    const response = await api.post('/register', { email, username, password });
+    const response = await api.post('/auth/register', { email, username, password });
     return response.data;
 };
 
 // Login user
 export const loginUser = async (email, password) => {
-    const response = await api.post('/login', { email, password });
-    return response.data.token;  // Return the token
+    const response = await api.post('/auth/login', { email, password });
+    return response.data.token;  // Return the JWT token
 };
 
 // Search recipes

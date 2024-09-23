@@ -12,7 +12,7 @@ function Login() {
         setSuccess('');
         try {
             const token = await loginUser(email, password);
-            localStorage.setItem('token', token); // Store JWT
+            localStorage.setItem('token', token);  // Store JWT
             setSuccess('Login successful!');
             setEmail('');
             setPassword('');
