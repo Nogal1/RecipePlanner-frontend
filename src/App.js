@@ -5,6 +5,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import RecipeSearch from './components/Recipes/RecipeSearch';
 import SavedRecipes from './components/Recipes/SavedRecipes';
+import RecipeDetails from './components/Recipes/RecipeDetails';
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                   <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />  {/* Pass setIsAuthenticated */}
                   <Route path="/register" element={<Register />} />
                   <Route path="/saved-recipes" element={<SavedRecipes />} />
+                  <Route path="/recipe/:id" element={<RecipeDetails />} />
               </Routes>
           </div>
       </Router>

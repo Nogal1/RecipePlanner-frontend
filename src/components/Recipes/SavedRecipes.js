@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSavedRecipes } from '../../services/api';
+import { Link } from 'react-router-dom';
 
 function SavedRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -33,6 +34,9 @@ function SavedRecipes() {
                     <div key={index}>
                         <h3>{recipe.title}</h3>
                         <img src={recipe.image_url} alt={recipe.title} />
+                        <Link to={`/recipe/${recipe.spoonacular_id}`}>
+                            <button>View Details</button>
+                        </Link>
                     </div>
                 ))}
             </div>

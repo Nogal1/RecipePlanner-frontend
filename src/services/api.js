@@ -42,4 +42,10 @@ export const fetchSavedRecipes = async () => {
     return response.data;
 };
 
+// Fetch Recipe Details by ID
+export const fetchRecipeDetails = async (id) => {
+    const response = await axios.get(`/recipe/${id}`);
+    return response.data;
+};
+
 
