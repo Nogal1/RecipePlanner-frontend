@@ -1,39 +1,26 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Layout/Navbar'; // Import the Navbar
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import RecipeSearch from './components/Recipes/RecipeSearch';
+import SavedRecipes from './components/Recipes/SavedRecipes';
+import "./App.css";
 
 function App() {
-    const [ingredients, setIngredients] = useState('');
-    const [recipes, setRecipes] = useState([]);
-
-    const searchRecipes = async () => {
-        try {
-            const response = await axios.get(`/search/${ingredients}`);
-            setRecipes(response.data);
-        } catch (error) {
-            console.error("Error fetching recipes", error);
-        }
-    };
-
     return (
-        <div>
-            <h1>RecipePlanner</h1>
-            <input
-                type="text"
-                placeholder="Enter ingredients"
-                value={ingredients}
-                onChange={(e) => setIngredients(e.target.value)}
-            />
-            <button onClick={searchRecipes}>Search Recipes</button>
-
+        <Router>
             <div>
-                {recipes.length > 0 && recipes.map((recipe) => (
-                    <div key={recipe.id}>
-                        <h3>{recipe.title}</h3>
-                        <img src={recipe.image} alt={recipe.title} />
-                    </div>
-                ))}
+                <Navbar />  {/* Add Navbar here */}
+                <Routes>
+                    <Route path="/" element={<RecipeSearch />} />
+                    <Route path="/search" element={<RecipeSearch />} />  {/* Add this route */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/saved-recipes" element={<SavedRecipes />} />
+                </Routes>
             </div>
-        </div>
+        </Router>
     );
 }
 
