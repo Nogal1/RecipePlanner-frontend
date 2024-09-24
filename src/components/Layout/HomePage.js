@@ -11,7 +11,6 @@ function HomePage() {
     useEffect(() => {
         // Check if user is logged in by checking token (or another authentication mechanism)
         const token = localStorage.getItem('token');
-        console.log("Token found:", token);
         setIsLoggedIn(!!token);
 
         if (token) {

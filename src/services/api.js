@@ -106,15 +106,19 @@ export const addItemToSpoonacularShoppingList = async (item) => {
     }
 };
 
-// Fetch the user's current shopping list
+// Fetch the user's shopping list
 export const fetchShoppingList = async () => {
-    const token = localStorage.getItem('token');  // Retrieve the token from localStorage
-    const response = await axios.get('/shopping-list', {
-        headers: { 'x-auth-token': token }  // Use 'x-auth-token' as the authorization header
-    });
-    return response.data;
+    const token = localStorage.getItem('token');  // Get token from local storage
+    try {
+        const response = await axios.get('http://localhost:3001/shopping-list', {
+            headers: { 'x-auth-token': token }  // Include the token in the headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching shopping list:', error);
+        throw error;
+    }
 };
-
 
 
 // Fetch random recipes from the Spoonacular API
@@ -136,8 +140,11 @@ export const fetchRandomRecipes = async () => {
 
 // Add or update the user's shopping list
 export const updateShoppingList = async (shoppingList) => {
+    const token = localStorage.getItem('token');  // Get token from local storage
     try {
-        const response = await axios.post('http://localhost:3001/shopping-list', { ingredients: shoppingList });
+        const response = await axios.post('http://localhost:3001/shopping-list', { ingredients: shoppingList }, {
+            headers: { 'x-auth-token': token }  // Include the token in the headers
+        });
         return response.data;
     } catch (error) {
         console.error('Error updating shopping list:', error);

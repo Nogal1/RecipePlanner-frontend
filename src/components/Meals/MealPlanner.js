@@ -53,47 +53,39 @@ function MealPlanner() {
         }
     };
 
-    // Generate shopping list using the same logic as RecipeDetails.js
-    const generateShoppingList = async () => {
-        console.log('Generating shopping list...');
-        const ingredientsSet = new Set();  // Use a Set to avoid duplicates
-    
-        for (const meal of mealPlan) {
-            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);
-            if (recipe && recipe.spoonacular_id) {
-                try {
-                    // Fetch full recipe details using spoonacular_id
-                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);
-                    if (recipeDetails && recipeDetails.extendedIngredients) {
-                        console.log('Recipe ingredients:', recipeDetails.extendedIngredients);
-    
-                        recipeDetails.extendedIngredients.forEach((ingredient) => {
-                            ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to the Set
-                        });
-                    } else {
-                        console.warn('No ingredients found for this recipe:', recipeDetails.title);
-                    }
-                } catch (error) {
-                    console.error('Error fetching recipe details for recipe with Spoonacular ID:', recipe.spoonacular_id, error);
+    // Generate shopping list and send to backend to save
+const generateShoppingList = async () => {
+    console.log('Generating shopping list...');
+    const ingredientsSet = new Set();  // Use Set to avoid duplicates
+
+    for (const meal of mealPlan) {
+        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match recipe in savedRecipes
+        if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
+            try {
+                // Fetch full recipe details using spoonacular_id
+                const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);
+                if (recipeDetails && recipeDetails.extendedIngredients) {
+                    recipeDetails.extendedIngredients.forEach((ingredient) => {
+                        ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to Set
+                    });
                 }
-            } else {
-                console.warn('No matching spoonacular_id found for recipe:', meal.recipe_id);
+            } catch (error) {
+                console.error(`Error fetching recipe details for recipe with Spoonacular ID: ${recipe.spoonacular_id}`);
             }
         }
-    
-        const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to an Array
-        console.log('Generated Shopping List:', uniqueIngredients);
-    
-        setShoppingList(uniqueIngredients);  // Store the generated list in the state
-    
-        // Send the generated shopping list to the backend
-        try {
-            await updateShoppingList(uniqueIngredients);  // Call the API to save the shopping list
-            console.log('Shopping list updated successfully.');
-        } catch (error) {
-            console.error('Error updating shopping list:', error);
-        }
-    };
+    }
+
+    const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to Array
+    setShoppingList(uniqueIngredients);  // Store the generated list
+
+    // Send the shopping list to the backend to save
+    try {
+        await updateShoppingList(uniqueIngredients);
+        console.log('Shopping list saved to the database');
+    } catch (error) {
+        console.error('Error saving shopping list:', error);
+    }
+};
 
     return (
         <div>
