@@ -80,7 +80,7 @@ function HomePage() {
         </div>
     ) : (
         <div>
-            <h3>Random Recipes</h3>
+            <h3>Recipes</h3>
             {randomRecipes.length > 0 ? (
                 randomRecipes.map((recipe) => (
                     <div key={recipe.id}>
@@ -92,7 +92,7 @@ function HomePage() {
                     </div>
                 ))
             ) : (
-                <p>Loading random recipes...</p>
+                <p>Loading recipes...</p>
             )}
         </div>
     )}

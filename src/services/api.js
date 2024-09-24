@@ -8,6 +8,14 @@ const spoonacularApi = axios.create({
     }
 });
 
+// Axios instance for Spoonacular API calls that don't require user-specific data
+const spoonacularApiNoAuth = axios.create({
+    baseURL: 'https://api.spoonacular.com',
+    params: {
+        apiKey: process.env.REACT_APP_SPOONACULAR_API_KEY,
+    },
+});
+
 // Base Axios instance
 const api = axios.create({
     baseURL: 'http://localhost:3001',  // This should point to your backend
@@ -121,22 +129,21 @@ export const fetchShoppingList = async () => {
 };
 
 
-// Fetch random recipes from the Spoonacular API
+// Fetch random recipes from the Spoonacular API using the global axios instance
 export const fetchRandomRecipes = async () => {
-    const SPOONACULAR_API_KEY = process.env.REACT_APP_SPOONACULAR_API_KEY;  // Make sure to store your API key in environment variables
     try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/random`, {
-            params: {
-                number: 5,  // Fetch 5 random recipes
-                apiKey: SPOONACULAR_API_KEY
-            }
-        });
-        return response.data.recipes;  // The random recipes are stored in the 'recipes' field
+        const response = await axios.get('/api/random-recipes');  // Calls the backend API
+        return response.data;
     } catch (error) {
         console.error('Error fetching random recipes:', error);
         throw error;
     }
 };
+
+
+
+
+
 
 // Add or update the user's shopping list
 export const updateShoppingList = async (shoppingList) => {
