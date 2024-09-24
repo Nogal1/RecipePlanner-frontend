@@ -19,7 +19,7 @@ export const loginUser = async (email, password) => {
 
 // Search recipes
 export const searchRecipes = async (ingredients) => {
-    const response = await api.get(`/search/${ingredients}`);
+    const response = await api.get(`/recipes/search/${ingredients}`);
     return response.data;
 };
 
