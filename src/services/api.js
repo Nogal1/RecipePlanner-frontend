@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+const spoonacularApi = axios.create({
+    baseURL: 'https://api.spoonacular.com',
+    params: {
+        apiKey: process.env.REACT_APP_SPOONACULAR_API_KEY,
+        hash: process.env.REACT_APP_USER_HASH,
+    }
+});
+
 // Base Axios instance
 const api = axios.create({
     baseURL: 'http://localhost:3001',  // This should point to your backend
@@ -84,5 +92,17 @@ export const deleteMealFromPlan = async (mealId) => {
     return response.data;
 };
 
-
+// Add an item to the Spoonacular shopping list
+export const addItemToSpoonacularShoppingList = async (item) => {
+    try {
+        const response = await spoonacularApi.post(`/mealplanner/${process.env.REACT_APP_USERNAME}/shopping-list/items`, {
+            item: item,
+            parse: true
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding item to Spoonacular shopping list:', error);
+        throw error;
+    }
+};
 

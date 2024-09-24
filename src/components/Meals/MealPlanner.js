@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMealPlan, addMealToPlan, deleteMealFromPlan, fetchSavedRecipes } from '../../services/api';
+import { fetchRecipeDetails,fetchMealPlan, fetchSavedRecipes, addMealToPlan, deleteMealFromPlan } from '../../services/api';
 import { Link } from 'react-router-dom';
 
 function MealPlanner() {
     const [mealPlan, setMealPlan] = useState([]);
-    const [savedRecipes, setSavedRecipes] = useState([]);  // List of saved recipes
-    const [selectedRecipe, setSelectedRecipe] = useState('');  // Selected recipe ID
-    const [dayOfWeek, setDayOfWeek] = useState('Monday');  // Default day is Monday
-    const [mealType, setMealType] = useState('lunch');  // Default meal type
+    const [savedRecipes, setSavedRecipes] = useState([]);
+    const [selectedRecipe, setSelectedRecipe] = useState('');
+    const [dayOfWeek, setDayOfWeek] = useState('Monday');
+    const [mealType, setMealType] = useState('lunch');
     const [error, setError] = useState('');
+    const [shoppingList, setShoppingList] = useState([]);  // Shopping list state
 
-    // Fetch the user's meal plan and saved recipes on load
     useEffect(() => {
         const loadMealPlanAndRecipes = async () => {
             try {
@@ -53,6 +53,39 @@ function MealPlanner() {
         }
     };
 
+    // Generate shopping list using the same logic as RecipeDetails.js
+    const generateShoppingList = async () => {
+        console.log('Generating shopping list...');
+        const ingredientsSet = new Set();  // Use a Set to avoid duplicates
+    
+        for (const meal of mealPlan) {
+            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match the recipe in savedRecipes
+            if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
+                try {
+                    // Fetch full recipe details using spoonacular_id, not recipe_id
+                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);  
+                    if (recipeDetails && recipeDetails.extendedIngredients) {
+                        console.log('Recipe ingredients:', recipeDetails.extendedIngredients);
+    
+                        recipeDetails.extendedIngredients.forEach((ingredient) => {
+                            ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to the Set
+                        });
+                    } else {
+                        console.warn('No ingredients found for this recipe:', recipeDetails.title);
+                    }
+                } catch (error) {
+                    console.error('Error fetching recipe details for recipe with Spoonacular ID:', recipe.spoonacular_id, error);
+                }
+            } else {
+                console.warn('No matching spoonacular_id found for recipe:', meal.recipe_id);
+            }
+        }
+    
+        const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to an Array
+        console.log('Generated Shopping List:', uniqueIngredients);  // Debugging: Log the generated list
+        setShoppingList(uniqueIngredients);  // Store the generated list in the state
+    };
+    
     return (
         <div>
             <h2>Meal Planner</h2>
@@ -100,9 +133,7 @@ function MealPlanner() {
                     <p>No meals planned yet.</p>
                 ) : (
                     mealPlan.map((meal) => {
-                        // Find the matching recipe in savedRecipes using meal.recipe_id
                         const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match by recipe_id in meal
-
                         return (
                             <div key={meal.id}>
                                 <p>{meal.day_of_week} - {meal.meal_type}: {recipe ? recipe.title : 'Unknown Recipe'}</p>
@@ -110,7 +141,7 @@ function MealPlanner() {
 
                                 {/* View Recipe Details Button */}
                                 {recipe && (
-                                    <Link to={`/recipe/${recipe.spoonacular_id}`}>  {/* Use spoonacular_id here */}
+                                    <Link to={`/recipe/${recipe.spoonacular_id}`}>
                                         <button>View Recipe Details</button>
                                     </Link>
                                 )}
@@ -121,6 +152,21 @@ function MealPlanner() {
                     })
                 )}
             </div>
+
+            <h3>Generate Shopping List</h3>
+            <button onClick={generateShoppingList}>Generate Shopping List</button>
+
+            {/* Display Shopping List */}
+            {shoppingList.length > 0 && (
+                <div>
+                    <h3>Shopping List</h3>
+                    <ul>
+                        {shoppingList.map((ingredient, index) => (
+                            <li key={index}>{ingredient}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 }
