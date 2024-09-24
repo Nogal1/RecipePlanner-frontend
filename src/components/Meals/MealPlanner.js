@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMealPlan, addMealToPlan, deleteMealFromPlan, fetchSavedRecipes } from '../../services/api';  // Fetch saved recipes as well
+import { fetchMealPlan, addMealToPlan, deleteMealFromPlan, fetchSavedRecipes } from '../../services/api';
+import { Link } from 'react-router-dom';
 
 function MealPlanner() {
     const [mealPlan, setMealPlan] = useState([]);
@@ -7,7 +8,7 @@ function MealPlanner() {
     const [selectedRecipe, setSelectedRecipe] = useState('');  // Selected recipe ID
     const [dayOfWeek, setDayOfWeek] = useState('Monday');  // Default day is Monday
     const [mealType, setMealType] = useState('lunch');  // Default meal type
-    const [error, setError] = useState('');  // To show error messages
+    const [error, setError] = useState('');
 
     // Fetch the user's meal plan and saved recipes on load
     useEffect(() => {
@@ -98,13 +99,26 @@ function MealPlanner() {
                 {mealPlan.length === 0 ? (
                     <p>No meals planned yet.</p>
                 ) : (
-                    mealPlan.map((meal) => (
-                        <div key={meal.id}>
-                            <p>{meal.day_of_week} - {meal.meal_type}: {meal.title}</p>
-                            <img src={meal.image_url} alt={meal.title} width="100" />
-                            <button onClick={() => handleDeleteMeal(meal.id)}>Remove</button>
-                        </div>
-                    ))
+                    mealPlan.map((meal) => {
+                        // Find the matching recipe in savedRecipes using meal.recipe_id
+                        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match by recipe_id in meal
+
+                        return (
+                            <div key={meal.id}>
+                                <p>{meal.day_of_week} - {meal.meal_type}: {recipe ? recipe.title : 'Unknown Recipe'}</p>
+                                <img src={recipe ? recipe.image_url : ''} alt={recipe ? recipe.title : ''} width="100" />
+
+                                {/* View Recipe Details Button */}
+                                {recipe && (
+                                    <Link to={`/recipe/${recipe.spoonacular_id}`}>  {/* Use spoonacular_id here */}
+                                        <button>View Recipe Details</button>
+                                    </Link>
+                                )}
+
+                                <button onClick={() => handleDeleteMeal(meal.id)}>Remove</button>
+                            </div>
+                        );
+                    })
                 )}
             </div>
         </div>
