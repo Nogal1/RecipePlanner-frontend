@@ -106,3 +106,41 @@ export const addItemToSpoonacularShoppingList = async (item) => {
     }
 };
 
+// Fetch the user's current shopping list
+export const fetchShoppingList = async () => {
+    const token = localStorage.getItem('token');  // Retrieve the token from localStorage
+    const response = await axios.get('/shopping-list', {
+        headers: { 'x-auth-token': token }  // Use 'x-auth-token' as the authorization header
+    });
+    return response.data;
+};
+
+
+
+// Fetch random recipes from the Spoonacular API
+export const fetchRandomRecipes = async () => {
+    const SPOONACULAR_API_KEY = process.env.REACT_APP_SPOONACULAR_API_KEY;  // Make sure to store your API key in environment variables
+    try {
+        const response = await axios.get(`https://api.spoonacular.com/recipes/random`, {
+            params: {
+                number: 5,  // Fetch 5 random recipes
+                apiKey: SPOONACULAR_API_KEY
+            }
+        });
+        return response.data.recipes;  // The random recipes are stored in the 'recipes' field
+    } catch (error) {
+        console.error('Error fetching random recipes:', error);
+        throw error;
+    }
+};
+
+// Add or update the user's shopping list
+export const updateShoppingList = async (shoppingList) => {
+    try {
+        const response = await axios.post('http://localhost:3001/shopping-list', { ingredients: shoppingList });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating shopping list:', error);
+        throw error;
+    }
+};

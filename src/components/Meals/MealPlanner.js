@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { fetchRecipeDetails,fetchMealPlan, fetchSavedRecipes, addMealToPlan, deleteMealFromPlan } from '../../services/api';
+import { updateShoppingList, fetchRecipeDetails,fetchMealPlan, fetchSavedRecipes, addMealToPlan, deleteMealFromPlan } from '../../services/api';
 import { Link } from 'react-router-dom';
 
 function MealPlanner() {
     const [mealPlan, setMealPlan] = useState([]);
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState('');
-    const [dayOfWeek, setDayOfWeek] = useState('Monday');
-    const [mealType, setMealType] = useState('lunch');
+    const [dayOfWeek, setDayOfWeek] = useState('');
+    const [mealType, setMealType] = useState('');
     const [error, setError] = useState('');
     const [shoppingList, setShoppingList] = useState([]);  // Shopping list state
 
@@ -59,11 +59,11 @@ function MealPlanner() {
         const ingredientsSet = new Set();  // Use a Set to avoid duplicates
     
         for (const meal of mealPlan) {
-            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match the recipe in savedRecipes
-            if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
+            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);
+            if (recipe && recipe.spoonacular_id) {
                 try {
-                    // Fetch full recipe details using spoonacular_id, not recipe_id
-                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);  
+                    // Fetch full recipe details using spoonacular_id
+                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);
                     if (recipeDetails && recipeDetails.extendedIngredients) {
                         console.log('Recipe ingredients:', recipeDetails.extendedIngredients);
     
@@ -82,10 +82,19 @@ function MealPlanner() {
         }
     
         const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to an Array
-        console.log('Generated Shopping List:', uniqueIngredients);  // Debugging: Log the generated list
-        setShoppingList(uniqueIngredients);  // Store the generated list in the state
-    };
+        console.log('Generated Shopping List:', uniqueIngredients);
     
+        setShoppingList(uniqueIngredients);  // Store the generated list in the state
+    
+        // Send the generated shopping list to the backend
+        try {
+            await updateShoppingList(uniqueIngredients);  // Call the API to save the shopping list
+            console.log('Shopping list updated successfully.');
+        } catch (error) {
+            console.error('Error updating shopping list:', error);
+        }
+    };
+
     return (
         <div>
             <h2>Meal Planner</h2>
