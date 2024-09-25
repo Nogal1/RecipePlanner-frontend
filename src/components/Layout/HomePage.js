@@ -7,6 +7,7 @@ function HomePage() {
     const [shoppingList, setShoppingList] = useState([]);
     const [todaysMeal, setTodaysMeal] = useState(null);
     const [randomRecipes, setRandomRecipes] = useState([]);
+    const [checkedItems, setCheckedItems] = useState({}); // State to track checked items
 
     useEffect(() => {
         // Check if user is logged in by checking token (or another authentication mechanism)
@@ -38,7 +39,7 @@ function HomePage() {
             console.error('Error fetching user data:', error);
         }
     };
-    
+
     const loadRandomRecipes = async () => {
         try {
             const randomRecipesData = await fetchRandomRecipes();
@@ -49,51 +50,67 @@ function HomePage() {
         }
     };
 
+    const handleCheckboxChange = (item) => {
+        setCheckedItems((prevCheckedItems) => ({
+            ...prevCheckedItems,
+            [item]: !prevCheckedItems[item], // Toggle checked state
+        }));
+    };
+
     return (
         <div>
-    <h2>Welcome to Recipe Planner</h2>
-    {isLoggedIn ? (
-        <div>
-            <h3>Today's Meal</h3>
-            {todaysMeal ? (
+            <h2>Welcome to Recipe Planner</h2>
+            {isLoggedIn ? (
                 <div>
-                    <p>{todaysMeal.meal_type}: {todaysMeal.title}</p>  
-                    <img src={todaysMeal.image_url} alt={todaysMeal.title} width="100" />
+                    <h3>Today's Meal</h3>
+                    {todaysMeal ? (
+                        <div>
+                            <p>{todaysMeal.meal_type}: {todaysMeal.title}</p>  
+                            <img src={todaysMeal.image_url} alt={todaysMeal.title} width="100" />
+                        </div>
+                    ) : (
+                        <p>No meal planned for today.</p>
+                    )}
+
+                    <h3>Your Shopping List</h3>
+                    {shoppingList.length > 0 ? (
+                        <ul>
+                            {shoppingList.map((item, index) => (
+                                <li key={index}>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={!!checkedItems[item]} // Track checked state
+                                            onChange={() => handleCheckboxChange(item)} // Toggle checkbox state
+                                        />
+                                        {item}
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>Your shopping list is empty.</p>
+                    )}
                 </div>
             ) : (
-                <p>No meal planned for today.</p>
-            )}
-
-            <h3>Your Shopping List</h3>
-            {shoppingList.length > 0 ? (
-                <ul>
-                    {shoppingList.map((item, index) => (
-                        <li key={index}>{item}</li>
-                    ))}
-                </ul>
-            ) : (
-                <p>Your shopping list is empty.</p>
-            )}
-        </div>
-    ) : (
-        <div>
-            <h3>Recipes</h3>
-            {randomRecipes.length > 0 ? (
-                randomRecipes.map((recipe) => (
-                    <div key={recipe.id}>
-                        <p>{recipe.title}</p>
-                        <img src={recipe.image} alt={recipe.title} width="100" />
-                        <Link to={`/recipe/${recipe.spoonacular_id}`}>
-                            <button>View Recipe Details</button>
-                        </Link>
-                    </div>
-                ))
-            ) : (
-                <p>Loading recipes...</p>
+                <div>
+                    <h3>Recipes</h3>
+                    {randomRecipes.length > 0 ? (
+                        randomRecipes.map((recipe) => (
+                            <div key={recipe.id}>
+                                <p>{recipe.title}</p>
+                                <img src={recipe.image} alt={recipe.title} width="100" />
+                                <Link to={`/recipe/${recipe.spoonacular_id}`}>
+                                    <button>View Recipe Details</button>
+                                </Link>
+                            </div>
+                        ))
+                    ) : (
+                        <p>Loading recipes...</p>
+                    )}
+                </div>
             )}
         </div>
-    )}
-</div>
     );
 }
 
