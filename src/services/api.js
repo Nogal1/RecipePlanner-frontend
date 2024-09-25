@@ -140,10 +140,16 @@ export const fetchRandomRecipes = async () => {
     }
 };
 
-
-
-
-
+// Fetch autocomplete recipe search suggestions from the backend
+export const fetchAutoCompleteRecipes = async (query) => {
+    try {
+        const response = await axios.get('/api/recipes/autocomplete', { params: { query } });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching autocomplete suggestions from backend:', error);
+        throw error;
+    }
+};
 
 // Add or update the user's shopping list
 export const updateShoppingList = async (shoppingList) => {

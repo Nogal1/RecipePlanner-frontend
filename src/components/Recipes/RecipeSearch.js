@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { searchRecipes, saveRecipe } from '../../services/api';
-import { Link } from 'react-router-dom';  // Import Link
+import { searchRecipes, saveRecipe, fetchAutoCompleteRecipes } from '../../services/api';  // Assuming this API function is added
+import { Link } from 'react-router-dom';
 
 function RecipeSearch() {
     const [ingredients, setIngredients] = useState('');
@@ -8,6 +8,7 @@ function RecipeSearch() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);  // Pagination state
+    const [suggestions, setSuggestions] = useState([]);  // Autocomplete suggestions
 
     const handleSearch = async () => {
         if (!ingredients.trim()) {
@@ -43,24 +44,61 @@ function RecipeSearch() {
         }
     };
 
+    // Fetch autocomplete suggestions
+    const fetchSuggestions = async (query) => {
+        if (query.length > 1) {
+            try {
+                const response = await fetchAutoCompleteRecipes(query);
+                setSuggestions(response);  // Save suggestions from the API
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+            }
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setIngredients(suggestion.title);
+        setSuggestions([]);  // Clear suggestions after selection
+    };
 
     return (
         <div>
             <h2>Search Recipes</h2>
+
+            {/* Input with auto-complete suggestions */}
             <input
                 type="text"
                 placeholder="Enter ingredients"
                 value={ingredients}
-                onChange={(e) => setIngredients(e.target.value)}
+                onChange={(e) => {
+                    setIngredients(e.target.value);
+                    fetchSuggestions(e.target.value);  // Fetch suggestions as the user types
+                }}
             />
             <button onClick={handleSearch}>Search</button>
+
+            {/* Autocomplete suggestions */}
+            {suggestions.length > 0 && (
+                <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {suggestions.map((suggestion, index) => (
+                        <li key={index} onClick={() => handleSuggestionClick(suggestion)} style={{ cursor: 'pointer' }}>
+                            {suggestion.title}
+                        </li>
+                    ))}
+                </ul>
+            )}
+
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            {/* Display recipes */}
             <div>
                 {recipes.map((recipe, index) => (
                     <div key={index}>
                         <h3>{recipe.title}</h3>
-                        <img src={recipe.image} alt={recipe.title} />
+                        <img src={recipe.image} alt={recipe.title} width="100" />
                         {/* View Details Button */}
                         <Link to={`/recipe/${recipe.id}`}>
                             <button>View Details</button>
@@ -69,6 +107,8 @@ function RecipeSearch() {
                     </div>
                 ))}
             </div>
+
+            {/* Pagination */}
             <button onClick={() => setPage(page > 1 ? page - 1 : 1)}>Previous</button>
             <button onClick={() => setPage(page + 1)}>Next</button>
         </div>
