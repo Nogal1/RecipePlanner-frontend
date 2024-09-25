@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { searchRecipes, saveRecipe, fetchIngredientSuggestions } from '../../services/api';  // Import the correct API function
 import { Link } from 'react-router-dom';  // Import Link
+import { Container, Row, Col, Form, Button, Card, ListGroup } from 'react-bootstrap';  // Import Bootstrap components
 
 function RecipeSearch() {
     const [ingredients, setIngredients] = useState('');
@@ -8,7 +9,6 @@ function RecipeSearch() {
     const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);  // Autocomplete suggestions
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);  // Pagination state
     const [sortOption, setSortOption] = useState('');  // Sort option state
 
     useEffect(() => {
@@ -38,7 +38,7 @@ function RecipeSearch() {
         setLoading(true);
         setError('');
         try {
-            const response = await searchRecipes(ingredients, page);
+            const response = await searchRecipes(ingredients);
             setRecipes(response);
             setAutocompleteSuggestions([]);  // Clear autocomplete suggestions after search
         } catch (error) {
@@ -78,61 +78,71 @@ function RecipeSearch() {
     };
 
     return (
-        <div>
-            <h2>Search By Ingredients</h2>
+        <Container>
+            <h2 className="my-4 text-center">Search By Ingredients</h2>
 
-            {/* Search Input */}
-            <input
-                type="text"
-                placeholder="Enter ingredients"
-                value={ingredients}
-                onChange={(e) => {
-                    setIngredients(e.target.value);
-                    handleAutocomplete(e.target.value);  // Trigger autocomplete suggestions
-                }}
-            />
-            <button onClick={handleSearch}>Search</button>
+            <Row className="mb-3">
+                <Col md={8}>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter ingredients"
+                        value={ingredients}
+                        onChange={(e) => {
+                            setIngredients(e.target.value);
+                            handleAutocomplete(e.target.value);  // Trigger autocomplete suggestions
+                        }}
+                    />
+                </Col>
+                <Col md={4}>
+                    <Button variant="primary" onClick={handleSearch} block>Search</Button>
+                </Col>
+            </Row>
 
             {/* Autocomplete Suggestions */}
             {autocompleteSuggestions.length > 0 && (
-                <ul>
+                <ListGroup className="mb-3">
                     {autocompleteSuggestions.map((suggestion, index) => (
-                        <li key={index} onClick={() => setIngredients(suggestion.name)}>  {/* Use suggestion.name for ingredients */}
-                            {suggestion.name}  {/* Display ingredient name */}
-                        </li>
+                        <ListGroup.Item key={index} onClick={() => setIngredients(suggestion.name)}>
+                            {suggestion.name}
+                        </ListGroup.Item>
                     ))}
-                </ul>
+                </ListGroup>
             )}
 
             {/* Dropdown for sorting options */}
-            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-                <option value="">Sort By</option>
-                <option value="title-asc">Title (A-Z)</option>
-                <option value="title-desc">Title (Z-A)</option>
-            </select>
+            <Form.Group as={Row} className="mb-3">
+                <Col md={4}>
+                    <Form.Control as="select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                        <option value="">Sort By</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                    </Form.Control>
+                </Col>
+            </Form.Group>
 
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {/* Recipe Results */}
-            <div>
+            <Row>
                 {recipes.map((recipe, index) => (
-                    <div key={index}>
-                        <h3>{recipe.title}</h3>
-                        <img src={recipe.image} alt={recipe.title} />
-                        {/* View Details Button */}
-                        <Link to={`/recipe/${recipe.id}`}>
-                            <button>View Details</button>
-                        </Link>
-                        <button onClick={() => handleSaveRecipe(recipe)}>Save Recipe</button>
-                    </div>
+                    <Col md={4} className="mb-4" key={index}>
+                        <Card>
+                            <Card.Img variant="top" src={recipe.image} alt={recipe.title} />
+                            <Card.Body>
+                                <Card.Title>{recipe.title}</Card.Title>
+                                <div className="d-flex justify-content-between">
+                                    <Link to={`/recipe/${recipe.id}`}>
+                                        <Button variant="primary" className="btn-sm">View Details</Button>
+                                    </Link>
+                                    <Button variant="success" onClick={() => handleSaveRecipe(recipe)} className="btn-sm">Save Recipe</Button>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 ))}
-            </div>
-
-            {/* Pagination controls */}
-            <button onClick={() => setPage(page > 1 ? page - 1 : 1)}>Previous</button>
-            <button onClick={() => setPage(page + 1)}>Next</button>
-        </div>
+            </Row>
+        </Container>
     );
 }
 

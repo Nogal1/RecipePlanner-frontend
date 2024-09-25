@@ -12,7 +12,6 @@ function MealPlanner() {
     const [shoppingList, setShoppingList] = useState([]); // Shopping list state
     const [checkedItems, setCheckedItems] = useState({}); // State to track checked items
 
-    // Fetch meal plan and saved recipes on component load
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -27,7 +26,6 @@ function MealPlanner() {
         loadData();
     }, []);
 
-    // Handle adding a meal to the plan
     const handleAddMeal = async () => {
         if (!selectedRecipe) {
             setError('Please select a recipe');
@@ -44,7 +42,6 @@ function MealPlanner() {
         }
     };
 
-    // Handle deleting a meal from the plan
     const handleDeleteMeal = async (mealId) => {
         try {
             await deleteMealFromPlan(mealId);
@@ -55,133 +52,133 @@ function MealPlanner() {
         }
     };
 
-    // Handle generating the shopping list
     const generateShoppingList = async () => {
-        const ingredientsSet = new Set(); // Use a Set to avoid duplicates
-
+        const ingredientsSet = new Set();
         for (const meal of mealPlan) {
-            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id); // Match the recipe in savedRecipes
-            if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
+            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);
+            if (recipe && recipe.spoonacular_id) {
                 try {
-                    // Fetch full recipe details using spoonacular_id
-                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);  
+                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);
                     if (recipeDetails && recipeDetails.extendedIngredients) {
                         recipeDetails.extendedIngredients.forEach((ingredient) => {
-                            ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to the Set
+                            ingredientsSet.add(ingredient.original.trim());
                         });
-                    } else {
-                        console.warn('No ingredients found for this recipe:', recipeDetails.title);
                     }
                 } catch (error) {
                     console.error('Error fetching recipe details for recipe with Spoonacular ID:', recipe.spoonacular_id, error);
                 }
-            } else {
-                console.warn('No matching spoonacular_id found for recipe:', meal.recipe_id);
             }
         }
-
-        const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to an Array
-        setShoppingList(uniqueIngredients);  // Store the generated list in the state
+        const uniqueIngredients = Array.from(ingredientsSet);
+        setShoppingList(uniqueIngredients);
     };
 
-    // Handle checking/unchecking ingredients
     const handleCheckboxChange = (ingredient) => {
         setCheckedItems((prevCheckedItems) => ({
             ...prevCheckedItems,
-            [ingredient]: !prevCheckedItems[ingredient], // Toggle the checked state
+            [ingredient]: !prevCheckedItems[ingredient], 
         }));
     };
 
     return (
-        <div>
-            <h2>Meal Planner</h2>
-            <div>
-                <h3>Add a Meal</h3>
+        <div className="container">
+            <h2 className="my-4 text-center">Meal Planner</h2>
 
-                {/* Dropdown to select a recipe from saved recipes */}
-                <select
-                    value={selectedRecipe}
-                    onChange={(e) => setSelectedRecipe(e.target.value)}
-                >
-                    <option value="">Select a recipe</option>
-                    {savedRecipes.map((recipe) => (
-                        <option key={recipe.id} value={recipe.id}>
-                            {recipe.title}
-                        </option>
-                    ))}
-                </select>
+            <div className="card p-4 mb-4">
+                <h3 className="card-title">Add a Meal</h3>
+                <div className="form-group">
+                    <select className="form-control mb-3" value={selectedRecipe} onChange={(e) => setSelectedRecipe(e.target.value)}>
+                        <option value="">Select a recipe</option>
+                        {savedRecipes.map((recipe) => (
+                            <option key={recipe.id} value={recipe.id}>
+                                {recipe.title}
+                            </option>
+                        ))}
+                    </select>
 
-                {/* Day of week selection */}
-                <select value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)}>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
+                    <div className="row mb-3">
+                        <div className="col">
+                            <select className="form-control" value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)}>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                        <div className="col">
+                            <select className="form-control" value={mealType} onChange={(e) => setMealType(e.target.value)}>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                            </select>
+                        </div>
+                    </div>
 
-                {/* Meal type selection */}
-                <select value={mealType} onChange={(e) => setMealType(e.target.value)}>
-                    <option value="Breakfast">Breakfast</option>
-                    <option value="Lunch">Lunch</option>
-                    <option value="Dinner">Dinner</option>
-                </select>
-
-                <button onClick={handleAddMeal}>Add Meal</button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
+                    <button className="btn btn-primary btn-block" onClick={handleAddMeal}>Add Meal</button>
+                    {error && <p className="text-danger mt-2">{error}</p>}
+                </div>
             </div>
 
             <h3>Your Meal Plan</h3>
-            <div>
+            <div className="row">
                 {mealPlan.length === 0 ? (
                     <p>No meals planned yet.</p>
                 ) : (
                     mealPlan.map((meal) => {
-                        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id); // Match by recipe_id in meal
+                        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);
                         return (
-                            <div key={meal.id}>
-                                <p>{meal.day_of_week} - {meal.meal_type}: {recipe ? recipe.title : 'Unknown Recipe'}</p>
-                                <img src={recipe ? recipe.image_url : ''} alt={recipe ? recipe.title : ''} width="100" />
-
-                                {/* View Recipe Details Button */}
-                                {recipe && (
-                                    <Link to={`/recipe/${recipe.spoonacular_id}`}>
-                                        <button>View Recipe Details</button>
-                                    </Link>
-                                )}
-
-                                <button onClick={() => handleDeleteMeal(meal.id)}>Remove</button>
+                            <div key={meal.id} className="col-md-4">
+                                <div className="card mb-4">
+                                    <img src={recipe ? recipe.image_url : ''} alt={recipe ? recipe.title : ''} className="card-img-top" />
+                                    <div className="card-body">
+                                        <p>{meal.day_of_week} - {meal.meal_type}: {recipe ? recipe.title : 'Unknown Recipe'}</p>
+                                        {recipe && (
+                                            <Link to={`/recipe/${recipe.spoonacular_id}`}>
+                                                <button className="btn btn-outline-primary btn-sm">View Recipe</button>
+                                            </Link>
+                                        )}
+                                        <button className="btn btn-danger btn-sm ml-2" onClick={() => handleDeleteMeal(meal.id)}>Remove</button>
+                                    </div>
+                                </div>
                             </div>
                         );
                     })
                 )}
             </div>
 
-            <h3>Generate Shopping List</h3>
-            <button onClick={generateShoppingList}>Generate Shopping List</button>
+            <div className="my-4">
+                <h3>Generate Shopping List</h3>
+                <button className="btn btn-success mb-3" onClick={generateShoppingList}>Generate Shopping List</button>
 
-            {/* Display Shopping List with Checkboxes */}
-            {shoppingList.length > 0 && (
-                <div>
-                    <h3>Shopping List</h3>
-                    <ul>
-                        {shoppingList.map((ingredient, index) => (
-                            <li key={index}>
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={!!checkedItems[ingredient]} // Track if the item is checked
-                                        onChange={() => handleCheckboxChange(ingredient)} // Toggle checked state
-                                    />
-                                    {ingredient}
-                                </label>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                {shoppingList.length > 0 && (
+    <div className="card p-4">
+        <h4 className="card-title">Shopping List</h4>
+        <ul className="list-group">
+            {shoppingList.map((ingredient, index) => (
+                <li key={index} className="list-group-item d-flex align-items-center">
+                    <label
+                        htmlFor={`ingredient-${index}`}
+                        className="w-100 d-flex align-items-center"
+                        style={{ cursor: 'pointer' }}  // Ensures the entire item is clickable
+                    >
+                        <input
+                            type="checkbox"
+                            className="mr-3"
+                            checked={!!checkedItems[ingredient]}
+                            onChange={() => handleCheckboxChange(ingredient)}
+                            id={`ingredient-${index}`}
+                        />
+                        <span className="ml-2">{ingredient}</span>
+                    </label>
+                </li>
+            ))}
+        </ul>
+    </div>
+)}
+            </div>
         </div>
     );
 }

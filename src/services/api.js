@@ -40,6 +40,20 @@ export const saveRecipe = async (recipeData) => {
     return response.data;
 };
 
+// Delete Saved Recipe
+export const deleteSavedRecipe = async (recipeId) => {
+    try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`/recipes/my-recipes/${recipeId}`, {
+            headers: { 'x-auth-token': token }
+        });
+    } catch (error) {
+        console.error('Error deleting recipe:', error);
+        throw error;
+    }
+};
+
+
 
 // Fetch Saved Recipes
 export const fetchSavedRecipes = async () => {

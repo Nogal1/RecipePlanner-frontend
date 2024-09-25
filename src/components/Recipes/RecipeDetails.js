@@ -26,15 +26,37 @@ function RecipeDetails() {
     }, [id]);
 
     if (loading) return <p>Loading...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+    if (error) return <p className="text-danger">{error}</p>;
     if (!recipe) return null;
 
     return (
-        <div>
-            <h2>{recipe.title}</h2>
-            <img src={recipe.image} alt={recipe.title} />
-            <p>{recipe.instructions}</p>
-            <p>Ingredients: {recipe.extendedIngredients.map(ing => ing.original).join(', ')}</p>
+        <div className="container my-5">
+            <div className="card">
+                <div className="row no-gutters">
+                    <div className="col-md-6">
+                        <img
+                            src={recipe.image}
+                            alt={recipe.title}
+                            className="card-img"
+                        />
+                    </div>
+                    <div className="col-md-6">
+                        <div className="card-body">
+                            <h2 className="card-title text-primary">{recipe.title}</h2>
+                            <h5 className="text-muted mb-4">Ingredients</h5>
+                            <ul className="list-group mb-4">
+                                {recipe.extendedIngredients.map((ingredient, index) => (
+                                    <li key={index} className="list-group-item">
+                                        {ingredient.original}
+                                    </li>
+                                ))}
+                            </ul>
+                            <h5 className="text-muted mb-3">Instructions</h5>
+                            <p className="card-text">{recipe.instructions}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

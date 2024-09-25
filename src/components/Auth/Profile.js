@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { fetchSavedRecipes, updateUserProfile } from '../../services/api';  // Add API calls for saved recipes and user update
+import React, { useState } from 'react';
+import { updateUserProfile } from '../../services/api';  // Remove fetchSavedRecipes since we no longer use it
 
 function Profile() {
     const [email, setEmail] = useState('');
@@ -7,25 +7,6 @@ function Profile() {
     const [newPassword, setNewPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [recipes, setRecipes] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    // Fetch user saved recipes on profile load
-    useEffect(() => {
-        const loadSavedRecipes = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const response = await fetchSavedRecipes();
-                setRecipes(response);
-            } catch (error) {
-                setError('Error fetching saved recipes.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadSavedRecipes();
-    }, []);
 
     // Update user email or password
     const handleUpdateProfile = async () => {
@@ -40,54 +21,54 @@ function Profile() {
     };
 
     return (
-        <div>
-            <h2>Profile</h2>
+        <div className="container mt-5">
+            <h2 className="text-center mb-4">Profile Settings</h2>
 
             {/* Display User Profile Update Form */}
-            <div>
-                <h3>Update Email</h3>
-                <input
-                    type="email"
-                    placeholder="Enter new email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-            </div>
+            <div className="card p-4">
+                <h3 className="mb-3">Update Email</h3>
+                <div className="form-group">
+                    <label htmlFor="email">New Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        placeholder="Enter new email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
 
-            <div>
-                <h3>Change Password</h3>
-                <input
-                    type="password"
-                    placeholder="Current password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="New password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                />
-            </div>
+                <h3 className="mt-4 mb-3">Change Password</h3>
+                <div className="form-group">
+                    <label htmlFor="current-password">Current Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="current-password"
+                        placeholder="Current password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="new-password">New Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="new-password"
+                        placeholder="New password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                </div>
 
-            <button onClick={handleUpdateProfile}>Update Profile</button>
+                <button className="btn btn-primary mt-4" onClick={handleUpdateProfile}>
+                    Update Profile
+                </button>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-
-            {/* Display Saved Recipes */}
-            <h3>My Saved Recipes</h3>
-            {loading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div>
-                {recipes.length === 0 && !loading && <p>No saved recipes yet.</p>}
-                {recipes.map((recipe, index) => (
-                    <div key={index}>
-                        <h3>{recipe.title}</h3>
-                        <img src={recipe.image_url} alt={recipe.title} />
-                        <button>View Recipe</button>
-                    </div>
-                ))}
+                {error && <p className="text-danger mt-3">{error}</p>}
+                {success && <p className="text-success mt-3">{success}</p>}
             </div>
         </div>
     );

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Navbar, Nav, Button } from 'react-bootstrap';
 
-function Navbar({ isAuthenticated, setIsAuthenticated }) {
+function AppNavbar({ isAuthenticated, setIsAuthenticated }) {
     const handleLogout = () => {
         localStorage.removeItem('token');  // Remove JWT token on logout
         setIsAuthenticated(false);  // Update state to logged out
@@ -16,26 +17,34 @@ function Navbar({ isAuthenticated, setIsAuthenticated }) {
     }, [setIsAuthenticated]);
 
     return (
-        <nav>
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/search">Search Recipes</Link></li>
-                {!isAuthenticated ? (
-                    <>
-                        <li><Link to="/login">Login</Link></li>
-                        <li><Link to="/register">Register</Link></li>
-                    </>
-                ) : (
-                    <>
-                        <li><Link to="/saved-recipes">My Recipes</Link></li>
-                        <li><Link to="/meal-planner">Meal Planner</Link></li>
-                        <li><Link to="/profile">Profile</Link></li>
-                        <li><button onClick={handleLogout}>Logout</button></li>
-                    </>
-                )}
-            </ul>
-        </nav>
+        <Navbar bg="--primary-color" variant="dark" expand="lg" className="mb-4">
+            <Navbar.Brand as={Link} to="/">
+                Recipe Planner
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls="navbar-nav" />
+            <Navbar.Collapse id="navbar-nav">
+                <Nav className="ml-auto">
+                    <Nav.Link as={Link} to="/">Home</Nav.Link>
+                    <Nav.Link as={Link} to="/search">Search Recipes</Nav.Link>
+                    {!isAuthenticated ? (
+                        <>
+                            <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                            <Nav.Link as={Link} to="/register">Register</Nav.Link>
+                        </>
+                    ) : (
+                        <>
+                            <Nav.Link as={Link} to="/saved-recipes">My Recipes</Nav.Link>
+                            <Nav.Link as={Link} to="/meal-planner">Meal Planner</Nav.Link>
+                            <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
+                            <Button variant="outline-light" onClick={handleLogout} className="ml-2">
+                                Logout
+                            </Button>
+                        </>
+                    )}
+                </Nav>
+            </Navbar.Collapse>
+        </Navbar>
     );
 }
 
-export default Navbar;
+export default AppNavbar;

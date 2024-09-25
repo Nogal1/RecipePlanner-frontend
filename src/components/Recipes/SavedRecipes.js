@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchSavedRecipes } from '../../services/api';
+import { fetchSavedRecipes, deleteSavedRecipe } from '../../services/api';  // Import deleteSavedRecipe API function
 import { Link } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';  // Import Bootstrap components
 
 function SavedRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -33,6 +34,15 @@ function SavedRecipes() {
         setSortOrder(e.target.value);  // Update sort order (asc/desc)
     };
 
+    const handleDeleteRecipe = async (recipeId) => {
+        try {
+            await deleteSavedRecipe(recipeId);  // Call the API to delete the recipe
+            setRecipes(recipes.filter(recipe => recipe.id !== recipeId));  // Remove the deleted recipe from the state
+        } catch (error) {
+            setError('Error deleting recipe. Please try again.');
+        }
+    };
+
     // Function to sort recipes based on the selected option and order
     const sortedRecipes = () => {
         return [...recipes].sort((a, b) => {
@@ -50,39 +60,58 @@ function SavedRecipes() {
     };
 
     return (
-        <div>
-            <h2>My Saved Recipes</h2>
+        <Container>
+            <h2 className="my-4 text-center">My Saved Recipes</h2>
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {/* Sort Dropdown */}
-            <label htmlFor="sort">Sort By: </label>
-            <select id="sort" value={sortOption} onChange={handleSortChange}>
-                <option value="title">Title</option>
-                <option value="date">Date Added</option>
-            </select>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Form.Group controlId="sort">
+                        <Form.Label>Sort By</Form.Label>
+                        <Form.Control as="select" value={sortOption} onChange={handleSortChange}>
+                            <option value="title">Title</option>
+                            <option value="date">Date Added</option>
+                        </Form.Control>
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group controlId="order">
+                        <Form.Label>Sort Order</Form.Label>
+                        <Form.Control as="select" value={sortOrder} onChange={handleSortOrderChange}>
+                            <option value="asc">A-Z / Oldest First</option>
+                            <option value="desc">Z-A / Newest First</option>
+                        </Form.Control>
+                    </Form.Group>
+                </Col>
+            </Row>
 
-            {/* Sort Order Dropdown */}
-            <label htmlFor="order">Sort Order: </label>
-            <select id="order" value={sortOrder} onChange={handleSortOrderChange}>
-                <option value="asc">A-Z / Oldest First</option>
-                <option value="desc">Z-A / Newest First</option>
-            </select>
+            {recipes.length === 0 && !loading && <p>No saved recipes yet.</p>}  {/* Show message if no recipes */}
 
-            <div>
-                {recipes.length === 0 && !loading && <p>No saved recipes yet.</p>}  {/* Show message if no recipes */}
+            <Row>
                 {sortedRecipes().map((recipe, index) => (
-                    <div key={index}>
-                        <h3>{recipe.title}</h3>
-                        <img src={recipe.image_url} alt={recipe.title} width="100" />
-                        <p>Date Added: {new Date(recipe.created_at).toLocaleDateString()}</p>
-                        <Link to={`/recipe/${recipe.spoonacular_id}`}>
-                            <button>View Details</button>
-                        </Link>
-                    </div>
+                    <Col md={4} className="mb-4" key={index}>
+                        <Card>
+                            <Card.Img variant="top" src={recipe.image_url} alt={recipe.title} />
+                            <Card.Body>
+                                <Card.Title>{recipe.title}</Card.Title>
+                                <Card.Text>Date Added: {new Date(recipe.created_at).toLocaleDateString()}</Card.Text>
+                                <Link to={`/recipe/${recipe.spoonacular_id}`}>
+                                    <Button variant="primary" className="btn-sm">View Details</Button>
+                                </Link>
+                                <Button
+                                    variant="danger"
+                                    className="btn-sm ml-2"
+                                    onClick={() => handleDeleteRecipe(recipe.id)}  // Handle recipe deletion
+                                >
+                                    Delete
+                                </Button>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 ))}
-            </div>
-        </div>
+            </Row>
+        </Container>
     );
 }
 

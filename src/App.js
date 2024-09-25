@@ -10,6 +10,7 @@ import Profile from './components/Auth/Profile';
 import MealPlanner from './components/Meals/MealPlanner';
 import HomePage from './components/Layout/HomePage';
 import "./App.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);  // Authentication state

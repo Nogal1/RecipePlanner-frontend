@@ -1,30 +1,123 @@
-nav {
-  background-color: #333;
-  padding: 1rem;
+/* Global Theme Colors */
+:root {
+  --primary-color: #FF5733;  /* Orange */
+  --secondary-color: #FFFFFF; /* White */
+  --text-color: #000000;      /* Black */
 }
 
-nav ul {
-  list-style-type: none;
+/* Body and text styling */
+body {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+h2, h3, h4, p, label {
+  color: var(--text-color);
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.navbar-brand {
+  color: var(--secondary-color) !important;
+}
+
+.nav-link {
+  color: var(--secondary-color) !important;
+}
+
+/* Buttons */
+.btn {
+  font-size: 14px;
+  padding: 5px 10px;
+}
+
+.btn-container {
   display: flex;
-  justify-content: space-around;
+  gap: 10px;
 }
 
-nav ul li {
-  margin: 0 1rem;
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
-nav ul li a {
-  color: white;
-  text-decoration: none;
+.btn-primary:hover {
+  background-color: #e04d29;
+  border-color: #e04d29;
 }
 
-nav ul li button {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
+.btn-success {
+  background-color: #28a745;
+  color: var(--secondary-color);
 }
 
-nav ul li button:hover, nav ul li a:hover {
-  text-decoration: underline;
+.btn-secondary {
+  background-color: #6c757d;
+  color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: #5b6369;
+}
+
+/* Card styling */
+.card {
+  background-color: var(--secondary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.card-title {
+  color: var(--primary-color);
+}
+
+.card-body {
+  color: var(--text-color);
+}
+
+.card img {
+  border-bottom: 1px solid var(--primary-color);
+}
+
+/* Autocomplete suggestions */
+.list-group-item {
+  color: var(--text-color);
+  background-color: var(--secondary-color);
+  border-color: var(--primary-color);
+}
+
+.list-group-item:hover {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+/* Pagination buttons */
+.pagination .page-link {
+  color: var(--primary-color);
+}
+
+.pagination .page-link:hover {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+/* Checkbox Style for Shopping List */
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+input[type="checkbox"]:checked + label {
+  text-decoration: line-through;
+  color: grey;
+}
+
+.small-img {
+  max-width: 300px;  
+  height: auto;      
+  display: block;
+  margin: 0 auto;    
 }
