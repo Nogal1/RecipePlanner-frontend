@@ -1,91 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import { updateShoppingList, fetchRecipeDetails,fetchMealPlan, fetchSavedRecipes, addMealToPlan, deleteMealFromPlan } from '../../services/api';
 import { Link } from 'react-router-dom';
+import { fetchMealPlan, fetchSavedRecipes, addMealToPlan, deleteMealFromPlan, fetchRecipeDetails } from '../../services/api'; // Adjusted the imports as needed
 
 function MealPlanner() {
     const [mealPlan, setMealPlan] = useState([]);
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState('');
-    const [dayOfWeek, setDayOfWeek] = useState('');
-    const [mealType, setMealType] = useState('');
+    const [dayOfWeek, setDayOfWeek] = useState('Monday');
+    const [mealType, setMealType] = useState('Lunch');
     const [error, setError] = useState('');
-    const [shoppingList, setShoppingList] = useState([]);  // Shopping list state
-    
+    const [shoppingList, setShoppingList] = useState([]); // Shopping list state
+    const [checkedItems, setCheckedItems] = useState({}); // State to track checked items
+
+    // Fetch meal plan and saved recipes on component load
     useEffect(() => {
-        const loadMealPlanAndRecipes = async () => {
+        const loadData = async () => {
             try {
                 const mealPlanData = await fetchMealPlan();
-                setMealPlan(mealPlanData);
-
                 const savedRecipesData = await fetchSavedRecipes();
+                setMealPlan(mealPlanData);
                 setSavedRecipes(savedRecipesData);
             } catch (error) {
-                console.error('Error fetching meal plan or saved recipes', error);
+                console.error('Error fetching meal plan or saved recipes:', error);
             }
         };
-        loadMealPlanAndRecipes();
+        loadData();
     }, []);
 
+    // Handle adding a meal to the plan
     const handleAddMeal = async () => {
         if (!selectedRecipe) {
             setError('Please select a recipe');
             return;
         }
-
         try {
-            await addMealToPlan({ recipe_id: selectedRecipe, spoonacular_id: selectedRecipe, day_of_week: dayOfWeek, meal_type: mealType });
-            const updatedPlan = await fetchMealPlan();
-            setMealPlan(updatedPlan);
+            await addMealToPlan({ recipe_id: selectedRecipe, day_of_week: dayOfWeek, meal_type: mealType });
+            const updatedMealPlan = await fetchMealPlan();
+            setMealPlan(updatedMealPlan);
             setError('');
         } catch (error) {
-            console.error('Error adding meal to plan', error);
+            console.error('Error adding meal to plan:', error);
             setError('Failed to add meal to the plan');
         }
     };
 
+    // Handle deleting a meal from the plan
     const handleDeleteMeal = async (mealId) => {
         try {
             await deleteMealFromPlan(mealId);
-            const updatedPlan = await fetchMealPlan();
-            setMealPlan(updatedPlan);
+            const updatedMealPlan = await fetchMealPlan();
+            setMealPlan(updatedMealPlan);
         } catch (error) {
-            console.error('Error removing meal from plan', error);
+            console.error('Error removing meal from plan:', error);
         }
     };
 
-    // Generate shopping list and send to backend to save
-const generateShoppingList = async () => {
-    console.log('Generating shopping list...');
-    const ingredientsSet = new Set();  // Use Set to avoid duplicates
+    // Handle generating the shopping list
+    const generateShoppingList = async () => {
+        const ingredientsSet = new Set(); // Use a Set to avoid duplicates
 
-    for (const meal of mealPlan) {
-        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match recipe in savedRecipes
-        if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
-            try {
-                // Fetch full recipe details using spoonacular_id
-                const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);
-                if (recipeDetails && recipeDetails.extendedIngredients) {
-                    recipeDetails.extendedIngredients.forEach((ingredient) => {
-                        ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to Set
-                    });
+        for (const meal of mealPlan) {
+            const recipe = savedRecipes.find((r) => r.id === meal.recipe_id); // Match the recipe in savedRecipes
+            if (recipe && recipe.spoonacular_id) {  // Ensure spoonacular_id is available
+                try {
+                    // Fetch full recipe details using spoonacular_id
+                    const recipeDetails = await fetchRecipeDetails(recipe.spoonacular_id);  
+                    if (recipeDetails && recipeDetails.extendedIngredients) {
+                        recipeDetails.extendedIngredients.forEach((ingredient) => {
+                            ingredientsSet.add(ingredient.original.trim());  // Add each ingredient to the Set
+                        });
+                    } else {
+                        console.warn('No ingredients found for this recipe:', recipeDetails.title);
+                    }
+                } catch (error) {
+                    console.error('Error fetching recipe details for recipe with Spoonacular ID:', recipe.spoonacular_id, error);
                 }
-            } catch (error) {
-                console.error(`Error fetching recipe details for recipe with Spoonacular ID: ${recipe.spoonacular_id}`);
+            } else {
+                console.warn('No matching spoonacular_id found for recipe:', meal.recipe_id);
             }
         }
-    }
 
-    const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to Array
-    setShoppingList(uniqueIngredients);  // Store the generated list
+        const uniqueIngredients = Array.from(ingredientsSet);  // Convert Set to an Array
+        setShoppingList(uniqueIngredients);  // Store the generated list in the state
+    };
 
-    // Send the shopping list to the backend to save
-    try {
-        await updateShoppingList(uniqueIngredients);
-        console.log('Shopping list saved to the database');
-    } catch (error) {
-        console.error('Error saving shopping list:', error);
-    }
-};
+    // Handle checking/unchecking ingredients
+    const handleCheckboxChange = (ingredient) => {
+        setCheckedItems((prevCheckedItems) => ({
+            ...prevCheckedItems,
+            [ingredient]: !prevCheckedItems[ingredient], // Toggle the checked state
+        }));
+    };
 
     return (
         <div>
@@ -134,7 +139,7 @@ const generateShoppingList = async () => {
                     <p>No meals planned yet.</p>
                 ) : (
                     mealPlan.map((meal) => {
-                        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id);  // Match by recipe_id in meal
+                        const recipe = savedRecipes.find((r) => r.id === meal.recipe_id); // Match by recipe_id in meal
                         return (
                             <div key={meal.id}>
                                 <p>{meal.day_of_week} - {meal.meal_type}: {recipe ? recipe.title : 'Unknown Recipe'}</p>
@@ -157,13 +162,22 @@ const generateShoppingList = async () => {
             <h3>Generate Shopping List</h3>
             <button onClick={generateShoppingList}>Generate Shopping List</button>
 
-            {/* Display Shopping List */}
+            {/* Display Shopping List with Checkboxes */}
             {shoppingList.length > 0 && (
                 <div>
                     <h3>Shopping List</h3>
                     <ul>
                         {shoppingList.map((ingredient, index) => (
-                            <li key={index}>{ingredient}</li>
+                            <li key={index}>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={!!checkedItems[ingredient]} // Track if the item is checked
+                                        onChange={() => handleCheckboxChange(ingredient)} // Toggle checked state
+                                    />
+                                    {ingredient}
+                                </label>
+                            </li>
                         ))}
                     </ul>
                 </div>
