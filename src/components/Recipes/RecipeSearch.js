@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
-import { searchRecipes, saveRecipe, fetchAutoCompleteRecipes } from '../../services/api';  // Assuming this API function is added
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { searchRecipes, saveRecipe, fetchAutoCompleteRecipes } from '../../services/api';  // Import autocomplete
+import { Link } from 'react-router-dom';  // Import Link
 
 function RecipeSearch() {
     const [ingredients, setIngredients] = useState('');
     const [recipes, setRecipes] = useState([]);
+    const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);  // Autocomplete suggestions
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);  // Pagination state
-    const [suggestions, setSuggestions] = useState([]);  // Autocomplete suggestions
+    const [sortOption, setSortOption] = useState('');  // Sort option state
+
+    useEffect(() => {
+        if (recipes.length > 0) {
+            sortRecipes(sortOption);
+        }
+    }, [sortOption]);  // Sort recipes whenever the sort option changes
+
+    // Fetch autocomplete suggestions
+    const handleAutocomplete = async (query) => {
+        if (query.trim().length < 2) return;  // Don't trigger for too short queries
+
+        try {
+            const suggestions = await fetchAutoCompleteRecipes(query);
+            setAutocompleteSuggestions(suggestions);
+        } catch (error) {
+            setError('Error fetching autocomplete suggestions.');
+        }
+    };
 
     const handleSearch = async () => {
         if (!ingredients.trim()) {
@@ -21,6 +40,7 @@ function RecipeSearch() {
         try {
             const response = await searchRecipes(ingredients, page);
             setRecipes(response);
+            setAutocompleteSuggestions([]);  // Clear autocomplete suggestions after search
         } catch (error) {
             setError('Error fetching recipes. Please try again.');
         } finally {
@@ -44,61 +64,62 @@ function RecipeSearch() {
         }
     };
 
-    // Fetch autocomplete suggestions
-    const fetchSuggestions = async (query) => {
-        if (query.length > 1) {
-            try {
-                const response = await fetchAutoCompleteRecipes(query);
-                setSuggestions(response);  // Save suggestions from the API
-            } catch (error) {
-                console.error('Error fetching suggestions:', error);
-            }
-        } else {
-            setSuggestions([]);
-        }
-    };
+    // Function to sort the recipes based on selected option
+    const sortRecipes = (option) => {
+        let sortedRecipes = [...recipes];  // Make a copy of the recipes array
 
-    const handleSuggestionClick = (suggestion) => {
-        setIngredients(suggestion.title);
-        setSuggestions([]);  // Clear suggestions after selection
+        if (option === 'title-asc') {
+            sortedRecipes.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (option === 'title-desc') {
+            sortedRecipes.sort((a, b) => b.title.localeCompare(a.title));
+        }
+
+        setRecipes(sortedRecipes);  // Update the state with the sorted array
     };
 
     return (
         <div>
-            <h2>Search Recipes</h2>
+            <h2>Search By Ingredients</h2>
 
-            {/* Input with auto-complete suggestions */}
+            {/* Search Input */}
             <input
                 type="text"
                 placeholder="Enter ingredients"
                 value={ingredients}
                 onChange={(e) => {
                     setIngredients(e.target.value);
-                    fetchSuggestions(e.target.value);  // Fetch suggestions as the user types
+                    handleAutocomplete(e.target.value);  // Trigger autocomplete suggestions
                 }}
             />
             <button onClick={handleSearch}>Search</button>
 
-            {/* Autocomplete suggestions */}
-            {suggestions.length > 0 && (
-                <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-                    {suggestions.map((suggestion, index) => (
-                        <li key={index} onClick={() => handleSuggestionClick(suggestion)} style={{ cursor: 'pointer' }}>
+            {/* Autocomplete Suggestions */}
+            {autocompleteSuggestions.length > 0 && (
+                <ul>
+                    {autocompleteSuggestions.map((suggestion, index) => (
+                        <li key={index} onClick={() => setIngredients(suggestion.title)}>
                             {suggestion.title}
                         </li>
                     ))}
                 </ul>
             )}
 
+            {/* Dropdown for sorting options */}
+            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                <option value="">Sort By</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="title-desc">Title (Z-A)</option>
+            </select>
+
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {/* Display recipes */}
+            {/* Recipe Results */}
             <div>
                 {recipes.map((recipe, index) => (
                     <div key={index}>
                         <h3>{recipe.title}</h3>
-                        <img src={recipe.image} alt={recipe.title} width="100" />
+                        <img src={recipe.image} alt={recipe.title} />
                         {/* View Details Button */}
                         <Link to={`/recipe/${recipe.id}`}>
                             <button>View Details</button>
@@ -108,7 +129,7 @@ function RecipeSearch() {
                 ))}
             </div>
 
-            {/* Pagination */}
+            {/* Pagination controls */}
             <button onClick={() => setPage(page > 1 ? page - 1 : 1)}>Previous</button>
             <button onClick={() => setPage(page + 1)}>Next</button>
         </div>
