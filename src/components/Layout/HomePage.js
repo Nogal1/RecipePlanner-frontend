@@ -57,11 +57,8 @@ function HomePage() {
             <h3>Today's Meal</h3>
             {todaysMeal ? (
                 <div>
-                    <p>{todaysMeal.meal_type}: {todaysMeal.title}</p>  {/* Using todaysMeal.title directly */}
+                    <p>{todaysMeal.meal_type}: {todaysMeal.title}</p>  
                     <img src={todaysMeal.image_url} alt={todaysMeal.title} width="100" />
-                    <Link to={`/recipe/${todaysMeal.recipe_id}`}> {/* Use the recipe_id for the details link */}
-                        <button>View Recipe Details</button>
-                    </Link>
                 </div>
             ) : (
                 <p>No meal planned for today.</p>

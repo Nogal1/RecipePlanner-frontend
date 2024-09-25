@@ -8,14 +8,6 @@ const spoonacularApi = axios.create({
     }
 });
 
-// Axios instance for Spoonacular API calls that don't require user-specific data
-const spoonacularApiNoAuth = axios.create({
-    baseURL: 'https://api.spoonacular.com',
-    params: {
-        apiKey: process.env.REACT_APP_SPOONACULAR_API_KEY,
-    },
-});
-
 // Base Axios instance
 const api = axios.create({
     baseURL: 'http://localhost:3001',  // This should point to your backend
@@ -141,9 +133,9 @@ export const fetchRandomRecipes = async () => {
 };
 
 // Fetch autocomplete recipe search suggestions from the backend
-export const fetchAutoCompleteRecipes = async (query) => {
+export const fetchIngredientSuggestions = async (query) => {
     try {
-        const response = await axios.get('/api/recipes/autocomplete', { params: { query } });
+        const response = await axios.get('/api/ingredients/autocomplete', { params: { query } });
         return response.data;
     } catch (error) {
         console.error('Error fetching autocomplete suggestions from backend:', error);

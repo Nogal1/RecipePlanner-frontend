@@ -10,7 +10,7 @@ function MealPlanner() {
     const [mealType, setMealType] = useState('');
     const [error, setError] = useState('');
     const [shoppingList, setShoppingList] = useState([]);  // Shopping list state
-
+    
     useEffect(() => {
         const loadMealPlanAndRecipes = async () => {
             try {
@@ -33,7 +33,7 @@ function MealPlanner() {
         }
 
         try {
-            await addMealToPlan({ recipe_id: selectedRecipe, day_of_week: dayOfWeek, meal_type: mealType });
+            await addMealToPlan({ recipe_id: selectedRecipe, spoonacular_id: selectedRecipe, day_of_week: dayOfWeek, meal_type: mealType });
             const updatedPlan = await fetchMealPlan();
             setMealPlan(updatedPlan);
             setError('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { searchRecipes, saveRecipe, fetchAutoCompleteRecipes } from '../../services/api';  // Import autocomplete
+import { searchRecipes, saveRecipe, fetchIngredientSuggestions } from '../../services/api';  // Import the correct API function
 import { Link } from 'react-router-dom';  // Import Link
 
 function RecipeSearch() {
@@ -17,12 +17,12 @@ function RecipeSearch() {
         }
     }, [sortOption]);  // Sort recipes whenever the sort option changes
 
-    // Fetch autocomplete suggestions
+    // Fetch autocomplete suggestions for ingredients
     const handleAutocomplete = async (query) => {
         if (query.trim().length < 2) return;  // Don't trigger for too short queries
 
         try {
-            const suggestions = await fetchAutoCompleteRecipes(query);
+            const suggestions = await fetchIngredientSuggestions(query);  // Fetch ingredient suggestions from API
             setAutocompleteSuggestions(suggestions);
         } catch (error) {
             setError('Error fetching autocomplete suggestions.');
@@ -97,8 +97,8 @@ function RecipeSearch() {
             {autocompleteSuggestions.length > 0 && (
                 <ul>
                     {autocompleteSuggestions.map((suggestion, index) => (
-                        <li key={index} onClick={() => setIngredients(suggestion.title)}>
-                            {suggestion.title}
+                        <li key={index} onClick={() => setIngredients(suggestion.name)}>  {/* Use suggestion.name for ingredients */}
+                            {suggestion.name}  {/* Display ingredient name */}
                         </li>
                     ))}
                 </ul>
